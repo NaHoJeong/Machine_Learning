@@ -1,0 +1,53 @@
+// ARIMA 모델을 이용한 비트코인 가격 예측
+// 인터넷에 있는 예제 코드 따라해보기
+
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
+import tensorflow as tf
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt # 그래프를 보기 위함
+
+file_path = 'D:Owner/documents/market-price.csv' # 가져올 데이터의 경로와 파일 이름(csv 파일)
+bitcoin = pd.read_csv(file_path, names = ['day', 'price']) # csv 파일 내의 컬럼을 각각 day와 price로 설정
+
+bitcoin['day'] = pd.to_datetime(bitcoin['day']) # 날짜 데이터를 파이썬의 날짜 형식으로
+
+bitcoin.index = bitcoin['day'] # 비트코인의 인덱스를 날짜로
+bitcoin.set_index('day') # 날짜를 인덱스로 설정
+#bitcoin['price'].plot() # 시간을 기준으로 비트코인 가격을 그래프로 출력
+#plt.show() # 그래프 보기
+
+
+# ARIMA(2,1,2) 모델로 학습(AR=2, I=1, MA=2)
+from statsmodels.tsa.arima_model import ARIMA
+import statsmodels.api as sm
+
+model = ARIMA(bitcoin.price.values, order=(2,1,2))
+
+model_fit = model.fit(trend='nc', full_output=True, disp=1)
+print(model_fit.summary()) # 학습
+
+#model_fit.plot_predict()
+#bitcoin['price'].plot()
+
+day = [1095, 1096, 1097, 1098, 1099, 1100, 1101, 1102, 1103, 1104] # 이 후의 그래프 출력
+predict_data = model_fit.forecast(steps=10) # 10일 예측
+
+model_fit.plot_predict()
+plt.plot(day, predict_data[0])
+plt.legend(['data','test','predict'])
+plt.show()
+
+'''
+pred_y_lower = [] # 예측 데이터의 최소값입니다.
+pred_y_upper = [] # 예측 데이터의 최대값입니다.
+for lower_upper in predict_data[2]:
+    lower = lower_upper[0]
+    upper = lower_upper[1]
+    pred_y_lower.append(lower)
+    pred_y_upper.append(upper)
+'''
+print(predict_data[0]) # 예측한 값 출력
+test = 50477.7 # 실제 값
