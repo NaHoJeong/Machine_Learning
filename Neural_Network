@@ -17,7 +17,7 @@ import numpy as np
 import tensorflow as tf
 
 // 데이터 파일 가져오기
-file_path = 'D:Owner/documents/ML_ex/neural_network_ex.csv'
+file_path = 
 data = pd.read_csv(file_path)
 
 x_len = len(data.columns) - 1
